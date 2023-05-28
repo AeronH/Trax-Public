@@ -26,5 +26,7 @@ class Car extends Model
         'make',
         'model',
         'year',
+        'trip_count',
+        'trip_miles',
     ];
 }

@@ -19,6 +19,8 @@ return new class extends Migration
             $table->string('make');
             $table->string('model');
             $table->integer('year');
+            $table->integer('trip_count')->default(0);
+            $table->float('trip_miles')->default(0);
             $table->timestamps();
         });
     }

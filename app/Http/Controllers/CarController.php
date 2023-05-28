@@ -56,10 +56,10 @@ class CarController extends Controller
 
             $car->save();
         } catch(Exception) {
-            return response()->json(["message" => "Car could not be stored"]);
+            return response()->json(['message' => 'Car could not be stored']);
         }
         
-        return response()->json(["message" => "New car stored successfully!"]);
+        return response()->json(['message' => 'New car stored successfully!']);
     }
 
     /**
@@ -70,34 +70,16 @@ class CarController extends Controller
      */
     public function show(int $id): JsonResponse
     {
-        try {
-            $car = DB::table('cars')
-                ->select(['id', 'make', 'model', 'year'])
-                ->selectSub(function ($query) use ($id) {
-                    $query->from('trips')
-                        ->whereColumn('trips.car_id', 'cars.id')
-                        ->where('trips.car_id', $id)
-                        ->selectRaw('COUNT(*)');
-                }, 'trip_count')
-                ->selectSub(function ($query) use ($id) {
-                    $query->from('trips')
-                        ->whereColumn('trips.car_id', 'cars.id')
-                        ->where('trips.car_id', $id)
-                        ->selectRaw('IFNULL(SUM(trips.miles), 0)');
-                }, 'trip_miles')
-                ->where('cars.user_id', auth()->id())
-                ->where('cars.id', $id)
-                ->first();
+        $car = DB::table('cars')
+            ->where('id', $id)
+            ->select('id', 'make', 'model', 'year', 'trip_count', 'trip_miles')
+            ->first();
 
-            if (!$car) {
-                return response()->json(["message" => "Cannot find car with the id " . $id], 404);
-            }
-        } catch(Exception) {
-            return response()->json(["message" => "There was an error"]);
+        if (!$car) {
+            return response()->json(['message' => 'Cannot find car with the id ' . $id], 404);
         }
         
-
-        return response()->json(["data" => $car]);
+        return response()->json(['data' => $car]);
     }
 
     /**
@@ -108,18 +90,18 @@ class CarController extends Controller
      */
     public function delete(int $id): JsonResponse
     {
-        try {
-            $carExists = DB::table('cars')->where('id', $id)->exists();
-    
-            if ($carExists) {
-                DB::table('cars')->where('id', $id)->delete();
-            } else {
-                return response()->json(["message" => "Car not found"], 404);
-            }
-        } catch (Exception) {
-            return response()->json(["message" => "Car could not be deleted"]);
+        $carExists = DB::table('cars')->where('id', $id)->exists();
+
+        if (!$carExists) {
+            return response()->json(['message' => 'Car not found'], 404);
         }
-    
-        return response()->json(["message" => "Car deleted successfully"]);
+
+        try {
+            DB::table('cars')->where('id', $id)->delete();
+        } catch (Exception) {
+            return response()->json(['message' => 'Car could not be deleted']);
+        }
+
+        return response()->json(['message' => 'Car deleted successfully']);
     }
 }

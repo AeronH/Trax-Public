@@ -19,44 +19,35 @@ class TripController extends Controller
     public function index(): JsonResponse
     {
         $trips = DB::table('trips')
-            ->select('id', 'date', 'miles', 'car_id')
+            ->join('cars', 'trips.car_id', '=', 'cars.id')
+            ->select(
+                'trips.id as trip_id',
+                'trips.date',
+                'trips.miles',
+                'cars.trip_miles as total',
+                'cars.id as car_id',
+                'cars.make',
+                'cars.model',
+                'cars.year'
+            )
             ->get();
 
-        $carIds = $trips->pluck('car_id')->toArray();
+        $formattedTrips = $trips->map(function ($trip) {
+            return [
+                'id' => $trip->trip_id,
+                'date' => $trip->date,
+                'miles' => $trip->miles,
+                'total' => $trip->total,
+                'car' => [
+                    'id' => $trip->car_id,
+                    'make' => $trip->make,
+                    'model' => $trip->model,
+                    'year' => $trip->year,
+                ],
+            ];
+        });
 
-        $cars = DB::table('cars')
-            ->whereIn('id', $carIds)
-            ->select('id', 'make', 'model', 'year')
-            ->get()
-            ->keyBy('id');
-
-        $total = 0;
-        $data = [];
-
-        foreach ($trips as $trip) {
-            $car = $cars->get($trip->car_id);
-
-            if ($car) {
-                $total += $trip->miles;
-
-                $completeTrip = [
-                    'id' => $trip->id,
-                    'date' => $trip->date,
-                    'miles' => $trip->miles,
-                    'total' => $total,
-                    'car' => [
-                        'id' => $car->id,
-                        'make' => $car->make,
-                        'model' => $car->model,
-                        'year' => $car->year,
-                    ],
-                ];
-    
-                array_push($data, $completeTrip); 
-            }
-        }
-
-        return response()->json(['data' => $data]);
+        return response()->json(['data' => $formattedTrips]);
     }
 
     /**
@@ -78,7 +69,6 @@ class TripController extends Controller
         $date = $request->get('date');
         $miles = (float) $request->get('miles');
 
-
         try {
             $trip = new Trip;
 
@@ -88,6 +78,14 @@ class TripController extends Controller
             $trip->miles = $miles;
 
             $trip->save();
+
+            DB::table('cars')
+                ->where('id', $carId)
+                ->increment('trip_miles', $miles);
+
+            DB::table('cars')
+                ->where('id', $carId)
+                ->increment('trip_count', 1);
         } catch (Exception) {
             return response()->json(['message' => 'Trip could not be stored']);
         }

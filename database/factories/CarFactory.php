@@ -2,13 +2,14 @@
 
 namespace Database\Factories;
 
+use App\Models\Car;
 use App\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\User>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Car>
  */
-class TripFactory extends Factory
+class CarFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
@@ -25,12 +26,10 @@ class TripFactory extends Factory
     public function definition()
     {
         return [
+            'user_id' => User::factory()->create(),
             'make' => $this->faker->randomElement(['Honda', 'Toyota', 'Hyundai', 'Nissan', 'Ford']),
             'model' => $this->faker->word(),
             'year' => $this->faker->year(),
-            'user_id' => User::factory(),
-            'trip_count' => $this->faker->randomDigit(),
-            'trip_miles' => $this->faker->randomFloat(2, 1, 50),
         ];
     }
 }
