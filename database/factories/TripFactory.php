@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Car;
 use App\Models\Trip;
+use App\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -26,10 +27,10 @@ class TripFactory extends Factory
     public function definition()
     {
         return [
+            'user_id' => User::factory(),
+            'car_id' => Car::factory(),
             'date' => $this->faker->date(),
             'miles' => $this->faker->randomFloat(2, 1, 500),
-            'total' => $this->faker->randomFloat(2, 501, 5000),
-            'car_id' => Car::factory(),
         ];
     }
 }

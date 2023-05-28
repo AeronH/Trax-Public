@@ -22,9 +22,9 @@ class Trip extends Model
      * @var array
      */
     protected $fillable = [
+        'user_id',
+        'car_id',
         'date',
         'miles',
-        'total',
-        'car_id'
     ];
 }
