@@ -27,8 +27,8 @@ class TripFactory extends Factory
     public function definition()
     {
         return [
-            'user_id' => User::factory(),
-            'car_id' => Car::factory(),
+            'user_id' => User::factory()->create(),
+            'car_id' => Car::factory()->create(),
             'date' => $this->faker->date(),
             'miles' => $this->faker->randomFloat(2, 1, 500),
         ];
