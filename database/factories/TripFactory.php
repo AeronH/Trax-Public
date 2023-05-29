@@ -2,20 +2,22 @@
 
 namespace Database\Factories;
 
+use App\Models\Car;
+use App\Models\Trip;
 use App\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\User>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Trip>
  */
-class UserFactory extends Factory
+class TripFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
      *
      * @return array<string, mixed>
      */
-    protected $model = User::class;
+    protected $model = Trip::class;
 
     /**
      * Define the model's default state.
@@ -25,11 +27,10 @@ class UserFactory extends Factory
     public function definition()
     {
         return [
-            'name' => $this->faker->name,
-            'email' => $this->faker->unique()->safeEmail,
-            'password' => '$2y$10$TKh8H1.PfQx37YgCzwiKb.KjNyWgaHb9cbcoQgdIVFlYg7B77UdFm', // secret
-            'remember_token' => str_random(10),
+            'user_id' => User::factory()->create(),
+            'car_id' => Car::factory()->create(),
+            'date' => $this->faker->date(),
+            'miles' => $this->faker->randomFloat(2, 1, 500),
         ];
     }
 }
-
